@@ -1,6 +1,4 @@
-//!
 //! Logger-specific config.
-//!
 
 use std::path::PathBuf;
 
@@ -49,7 +47,7 @@ pub struct Level(pub(super) tracing::Level);
 
 impl Level {
     /// Returns the most verbose [`tracing::Level`]
-    pub fn into_level(&self) -> tracing::Level {
+    pub fn into_level(self) -> tracing::Level {
         self.0
     }
 }
@@ -103,17 +101,21 @@ pub struct LogTelemetry {
     pub use_xray_generator: bool,
     /// Route Based Tracing
     pub route_to_trace: Option<Vec<String>>,
+    /// Interval for collecting the metrics (such as gauge) in background thread
+    pub bg_metrics_collection_interval_in_secs: Option<u16>,
 }
 
 /// Telemetry / tracing.
 #[derive(Default, Debug, Deserialize, Clone, PartialEq, Eq)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum LogFormat {
     /// Default pretty log format
     Default,
     /// JSON based structured logging
     #[default]
     Json,
+    /// JSON based structured logging with pretty print
+    PrettyJson,
 }
 
 impl Config {
@@ -147,6 +149,8 @@ impl Config {
             .add_source(config::Environment::with_prefix("ROUTER").separator("__"))
             .build()?;
 
+        // The logger may not yet be initialized when constructing the application configuration
+        #[allow(clippy::print_stderr)]
         serde_path_to_error::deserialize(config).map_err(|error| {
             crate::error!(%error, "Unable to deserialize configuration");
             eprintln!("Unable to deserialize application configuration: {error}");
