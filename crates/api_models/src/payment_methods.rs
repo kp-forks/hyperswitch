@@ -534,6 +534,12 @@ impl PaymentMethodCreate {
             api_enums::PaymentMethod::Wallet => {
                 matches!(payment_method_data, PaymentMethodCreateData::Wallet(_))
             }
+            api_enums::PaymentMethod::BankRedirect => {
+                matches!(
+                    payment_method_data,
+                    PaymentMethodCreateData::BankRedirect(_)
+                )
+            }
             _ => false,
         }
     }
@@ -619,6 +625,13 @@ pub enum WalletPaymentMethodData {
     PayPal(Box<payments::PaypalRedirection>),
 }
 
+#[derive(Debug, serde::Deserialize, serde::Serialize, Clone, ToSchema)]
+#[serde(deny_unknown_fields)]
+#[serde(rename_all = "snake_case")]
+pub enum BankRedirectDetail {
+    BancontactCard {},
+}
+
 #[cfg(feature = "v2")]
 #[derive(Debug, serde::Deserialize, serde::Serialize, Clone, ToSchema)]
 #[serde(deny_unknown_fields)]
@@ -629,6 +642,7 @@ pub enum PaymentMethodCreateData {
     ProxyCard(ProxyCardDetails),
     BankDebit(BankDebitDetail),
     Wallet(WalletPaymentMethodData),
+    BankRedirect(BankRedirectDetail),
 }
 
 #[cfg(feature = "v2")]
