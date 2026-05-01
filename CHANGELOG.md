@@ -4,6 +4,16 @@ All notable changes to HyperSwitch will be documented here.
 
 - - -
 
+## 2026.05.01.1
+
+### Features
+
+- **payment_method:** Add OLAP payment method retrieve endpoint for dashboard ([#12070](https://github.com/juspay/hyperswitch/pull/12070)) ([`bbc6ed0`](https://github.com/juspay/hyperswitch/commit/bbc6ed030822550b284205ea64e5fc78aa33d360))
+
+**Full Changelog:** [`2026.05.01.0...2026.05.01.1`](https://github.com/juspay/hyperswitch/compare/2026.05.01.0...2026.05.01.1)
+
+- - -
+
 ## 2026.05.01.0
 
 ### Features
