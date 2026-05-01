@@ -5067,6 +5067,32 @@ pub async fn retrieve_payment_method(
     .map(services::ApplicationResponse::Json)
 }
 
+#[cfg(all(feature = "v2", feature = "olap"))]
+#[instrument(skip_all)]
+pub async fn retrieve_payment_method_olap(
+    state: SessionState,
+    pm: api::PaymentMethodId,
+    profile: domain::Profile,
+    platform: domain::Platform,
+) -> RouterResponse<api::PaymentMethodDetailsResponse> {
+    let response = Box::pin(retrieve_payment_method(
+        state,
+        pm,
+        profile,
+        platform,
+        enums::ApiKeyType::External,
+        false,
+    ))
+    .await?
+    .get_json_body()
+    .change_context(errors::ApiErrorResponse::InternalServerError)
+    .attach_printable("Failed to get payment method response body")?;
+
+    Ok(services::ApplicationResponse::Json(
+        api::PaymentMethodDetailsResponse::from(response),
+    ))
+}
+
 #[cfg(feature = "v2")]
 #[instrument(skip_all)]
 pub async fn fetch_payment_method_by_storage(
