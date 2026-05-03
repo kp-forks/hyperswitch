@@ -545,6 +545,7 @@ export const CONNECTOR_LISTS = {
     GIFT_CARD: ["adyen"],
     AUTH_SERVICE_ELIGIBILITY: ["stripe", "cybersource"],
     PARTIAL_AUTH: ["nuvei", "checkout", "worldpay", "worldpayvantiv"],
+    MIT_WITH_LIMITED_CARD_DATA: ["peachpayments"],
     // Add more inclusion lists
   },
 };
