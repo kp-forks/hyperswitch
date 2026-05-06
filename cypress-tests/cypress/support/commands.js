@@ -6096,39 +6096,66 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add(
-  "manualRefundStatusUpdateTest",
-  (globalState, refundManualUpdateRequestBody) => {
-    const merchantId = globalState.get("merchantId");
-    const refundId = globalState.get("refundId");
-    const completeUrl = `${Cypress.env("BASEURL")}/refunds/${refundId}/manual-update`;
-    const adminApiKey = globalState.get("adminApiKey");
+Cypress.Commands.add("manualRefundStatusUpdateTest", (firstArg, secondArg) => {
+  let globalState;
+  let requestBody;
+  let resData = null;
+  let configs = {};
 
-    cy.request({
-      method: "PUT",
-      url: completeUrl,
-      headers: {
-        "Content-Type": "application/json",
-        "api-key": adminApiKey,
-        "X-Merchant-Id": merchantId,
-      },
-      body: refundManualUpdateRequestBody,
-      failOnStatusCode: false,
-    }).then((response) => {
-      logRequestId(response.headers["x-request-id"]);
+  if (typeof secondArg?.get === "function") {
+    globalState = secondArg;
+    const {
+      Configs: cfg = {},
+      Request: reqData,
+      Response: rData,
+    } = firstArg || {};
+    configs = cfg;
+    resData = rData;
+    requestBody = { ...reqData, merchant_id: globalState.get("merchantId") };
+  } else {
+    globalState = firstArg;
+    requestBody = secondArg;
+  }
 
-      cy.wrap(response).then(() => {
-        if (response.status === 200) {
+  const merchantId = globalState.get("merchantId");
+  const refundId = globalState.get("refundId");
+  const completeUrl = `${Cypress.env("BASEURL")}/refunds/${refundId}/manual-update`;
+  const adminApiKey = globalState.get("adminApiKey");
+
+  execConfig(validateConfig(configs));
+
+  cy.request({
+    method: "PUT",
+    url: completeUrl,
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": adminApiKey,
+      "X-Merchant-Id": merchantId,
+    },
+    body: requestBody,
+    failOnStatusCode: false,
+  }).then((response) => {
+    logRequestId(response.headers["x-request-id"]);
+
+    cy.wrap(response).then(() => {
+      if (response.status === 200) {
+        if (resData) {
+          expect(response.status).to.eq(resData?.status || 200);
+        } else {
           expect(response.status).to.eq(200);
+        }
+      } else {
+        if (resData) {
+          defaultErrorHandler(response, resData);
         } else {
           throw new Error(
             `Refund Manual Update Call Failed with error code "${response.body?.error?.code}" error message "${response.body?.error?.message}"`
           );
         }
-      });
+      }
     });
-  }
-);
+  });
+});
 
 Cypress.Commands.add(
   "IncomingWebhookTest",
